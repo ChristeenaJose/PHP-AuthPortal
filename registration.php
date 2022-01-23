@@ -26,7 +26,7 @@ if (isset($_REQUEST['username'])) {
     if ($resultUserReg) {
         echo "<div class='form'>
                   <h3>You are registered successfully.</h3><br/>
-                  <p class='link'>Click here to <a href='index.php'>Login</a></p>
+                  <p class='link'>Click here to <a href='login.php'>Login</a></p>
                   </div>";
     } else {
         echo "<div class='form'>
