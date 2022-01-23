@@ -22,8 +22,8 @@ class dbConnection{
 		$conn -> close();
 	}
 
-    // Check user is exist in the database.
-    function checkUserExist($username, $password){
+    // Check user is exist in the database for Login.
+    function checkUserLogin($username, $password){
         if(!empty($username) && !empty($password)){
 
             //escapes special characters in a string
@@ -31,6 +31,22 @@ class dbConnection{
             $password = $this->conn->real_escape_string($password);
 
             $sql = "SELECT * FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result->num_rows > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Check user is exist in the database for Registration.
+    function chkUserExist($email){
+        if(!empty($email)){
+            //escapes special characters in a string
+            $email = $this->conn->real_escape_string($email);
+
+            $sql = "SELECT * FROM users WHERE email='" . $email . "'";
             if($this->debug){print($sql. '<br/>');}
             $result = $this->conn->query($sql);
             if ($result->num_rows > 0) {
@@ -57,6 +73,8 @@ class dbConnection{
             if($this->debug){print($sql. '<br/>');}
             $result = $this->conn->query($sql);
             if ($result === TRUE) {
+
+                // Send mail for confirming email.
                 return true;
             } else {
                 print( "Error: " . $sql . "<br>" . $this->conn->error);

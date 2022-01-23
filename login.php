@@ -17,7 +17,7 @@
         $password = stripslashes($_REQUEST['password']);
 
         // Check user is exist in the database
-        $userExist = $classVar->checkUserExist($username, $password);
+        $userExist = $classVar->checkUserLogin($username, $password);
         if ($userExist) {
             $_SESSION['username'] = $username;
 
@@ -25,10 +25,10 @@
             header("Location: dashboard.php");
 
         } else {
-            echo "<div class='form'>
+            print("<div class='form'>
                   <h3>Incorrect Username/password.</h3><br/>
                   <p class='link'>Click here to <a href='login.php'>Login</a> again.</p>
-                  </div>";
+                  </div>");
         }
     } else {
     ?>

@@ -9,31 +9,55 @@
 <body>
 <div class="wrapper"><?php
 include('functions.php');
+include('module/validations.php');
 
 // When form submitted, insert values into the database.
 if (isset($_REQUEST['username'])) {
     $arrUserReg = array();
 
-    // removes backslashes
-    $arrUserReg['username'] = stripslashes($_REQUEST['username']);
-    $arrUserReg['email']    = stripslashes($_REQUEST['email']);
-    $arrUserReg['password'] = stripslashes($_REQUEST['password']);
+    $arrUserReg['username'] = $_REQUEST['username'];
+    $arrUserReg['email']    = $_REQUEST['email'];
+    $arrUserReg['password'] = $_REQUEST['password'];
+    $arrUserReg['re-password'] = $_REQUEST['re-password'];
 
+    // removes Special Characters from insert values.
+    $arrUserReg = $classValidation->removeSpecialCharacters($arrUserReg);
 
-    // When form submitted, insert values into the database.
-    $resultUserReg = $classVar->addUserReg($arrUserReg);
+    //Server side field validation.
+    $resultValidation = $classValidation->registerFormValidation($arrUserReg);
 
-    if ($resultUserReg) {
-        echo "<div class='form'>
-                  <h3>You are registered successfully.</h3><br/>
+    //Check User Exist.
+    $chkUserExist = $classVar->chkUserExist($arrUserReg['email']);
+
+    if($resultValidation && !$chkUserExist){
+
+        // When form submitted, insert values into the database.
+        $resultUserReg = $classVar->addUserReg($arrUserReg);
+        if ($resultUserReg) {
+            print("<div class='form'>
+                  <h3>Success! Registration has been done, and account activation link has been sent to your email id: ". $arrUserReg['email'] . " </h3><br/>
                   <p class='link'>Click here to <a href='login.php'>Login</a></p>
-                  </div>";
-    } else {
-        echo "<div class='form'>
-                  <h3>Required fields are missing.</h3><br/>
+                  </div>");
+        } else {
+            print("<div class='form'>
+                  <h3>Website under construction, Please Try later.</h3><br/>
                   <p class='link'>Click here to <a href='registration.php'>registration</a> again.</p>
-                  </div>";
+                  </div>");
+        }
     }
+    else if($chkUserExist){
+        print( "<div class='form'>
+              <h3>Email address already exists.</h3><br/>
+              <p class='link'>Click here to <a href='login.php'>login</a>.</p>
+              </div>");
+    }
+    else{
+        print( "<div class='form'>
+              <h3>Required fields are missing.</h3><br/>
+              <p class='link'>Click here to <a href='registration.php'>registration</a> again.</p>
+              </div>");
+    }
+
 } else {
     ?><header>Registration Form</header>
     <form method="post" action="" class="reg_form" name="register">
