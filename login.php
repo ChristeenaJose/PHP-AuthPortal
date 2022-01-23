@@ -1,44 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login</title>
+    <title>Login Form</title>
     <?php
     include('module/header.php');
     ?>
 </head>
 <body>
-<?php
-include('functions.php');
-session_start();
+<div class="wrapper"><?php
+    include('functions.php');
+    session_start();
 
-// When form submitted, check and create user session.
-if (isset($_POST['username'])) {
-    $username = stripslashes($_REQUEST['username']);    // removes backslashes
-    $password = stripslashes($_REQUEST['password']);
+    // When form submitted, check and create user session.
+    if (isset($_POST['username'])) {
+        $username = stripslashes($_REQUEST['username']);    // removes backslashes
+        $password = stripslashes($_REQUEST['password']);
 
-    // Check user is exist in the database
-    $userExist = $classVar->checkUserExist($username, $password);
-    if ($userExist) {
-        $_SESSION['username'] = $username;
+        // Check user is exist in the database
+        $userExist = $classVar->checkUserExist($username, $password);
+        if ($userExist) {
+            $_SESSION['username'] = $username;
 
-        // Redirect to user dashboard page
-        header("Location: dashboard.php");
+            // Redirect to user dashboard page
+            header("Location: dashboard.php");
 
-    } else {
-        echo "<div class='form'>
+        } else {
+            echo "<div class='form'>
                   <h3>Incorrect Username/password.</h3><br/>
                   <p class='link'>Click here to <a href='login.php'>Login</a> again.</p>
                   </div>";
-    }
-} else {
-    ?><form class="form" method="post" name="login">
-        <h1 class="login-title">Login</h1>
-        <input type="text" class="login-input" name="username" placeholder="Username" autofocus="true"/>
-        <input type="password" class="login-input" name="password" placeholder="Password"/>
-        <input type="submit" value="Login" name="submit" class="login-button"/>
-        <p class="link">Don't have an account? <a href="registration.php">Registration Now</a></p>
-    </form><?php
+        }
+    } else {
+    ?>
+    <header>Login Form</header>
+    <form action="" method="post" class="login_form" name="login">
+        <div class="field username">
+            <div class="input-area">
+                <input type="text" name="username" placeholder="Username" />
+                <i class="icon fas fa-envelope"></i>
+                <i class="error error-icon fas fa-exclamation-circle"></i>
+            </div>
+            <div class="error error-txt">Username can't be blank</div>
+        </div>
+        <div class="field password">
+            <div class="input-area">
+                <input type="password" name="password" placeholder="Password" />
+                <i class="icon fas fa-lock"></i>
+                <i class="error error-icon fas fa-exclamation-circle"></i>
+            </div>
+            <div class="error error-txt">Password can't be blank</div>
+        </div>
+        <input type="submit" value="Login" name="submit" class="login-button" />
+    </form>
+    <div class="sign-txt">Not yet member? <a href="registration.php">Signup now</a></div><?php
 }
+?></div><?php
 include('module/footer.php');
 ?>
 </body>

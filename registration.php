@@ -7,7 +7,7 @@
     ?>
 </head>
 <body>
-<?php
+<div class="wrapper"><?php
 include('functions.php');
 
 // When form submitted, insert values into the database.
@@ -35,17 +35,50 @@ if (isset($_REQUEST['username'])) {
                   </div>";
     }
 } else {
-    ?>
-    <form class="form" action="" method="post">
-        <h1 class="login-title">Registration</h1>
-        <input type="text" class="login-input" name="username" placeholder="Username" required />
-        <input type="text" class="login-input" name="email" placeholder="Email Adress">
-        <input type="password" class="login-input" name="password" placeholder="Password">
-        <input type="submit" name="submit" value="Register" class="login-button">
-        <p class="link">Already have an account? <a href="login.php">Login here</a></p>
+    ?><header>Registration Form</header>
+    <form method="post" action="" class="reg_form" name="register">
+        <div class="field email">
+            <div class="input-area">
+                <input type="text" name="email" placeholder="Email Adress" />
+                <i class="icon fas fa-envelope"></i>
+                <i class="error error-icon fas fa-exclamation-circle"></i>
+            </div>
+            <div class="error error-txt">Email Adress can't be blank</div>
+        </div>
+
+        <div class="field username">
+            <div class="input-area">
+                <input type="text" name="username" placeholder="Username" />
+                <i class="icon fas fa-envelope"></i>
+                <i class="error error-icon fas fa-exclamation-circle"></i>
+            </div>
+            <div class="error error-txt">Username can't be blank</div>
+        </div>
+        <div class="field password">
+            <div class="input-area">
+                <input type="password" name="password" placeholder="Password" />
+                <i class="icon fas fa-lock"></i>
+                <i class="error error-icon fas fa-exclamation-circle"></i>
+            </div>
+            <div class="error error-txt">Password can't be blank</div>
+        </div>
+
+        <div class="field re-password">
+            <div class="input-area">
+                <input type="password" name="re-password" placeholder="Repeat Password" />
+                <i class="icon fas fa-lock"></i>
+                <i class="error error-icon fas fa-exclamation-circle"></i>
+            </div>
+            <div class="error error-txt">Repeat Password can't be blank</div>
+        </div>
+
+        <input type="submit" value="Register" name="submit" class="login-button" />
     </form>
-    <?php
+    <div class="sign-txt">Already have an account? <a href="login.php">Login here</a></div><?php
 }
+
+?></div><?php
+include('module/footer.php');
 ?>
 </body>
 </html>
