@@ -26,6 +26,7 @@ class dbConnection{
     function checkUserExist($username, $password){
         if(!empty($username) && !empty($password)){
 
+            //escapes special characters in a string
             $username = $this->conn->real_escape_string($username);
             $password = $this->conn->real_escape_string($password);
 
@@ -34,6 +35,32 @@ class dbConnection{
             $result = $this->conn->query($sql);
             if ($result->num_rows > 0) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    // Insert values into the database.
+    function addUserReg($arrUserReg){
+
+	    if(!empty($arrUserReg)){
+
+            //escapes special characters in a string
+            $username = $this->conn->real_escape_string($arrUserReg['username']);
+            $password = $this->conn->real_escape_string($arrUserReg['password']);
+            $email = $this->conn->real_escape_string($arrUserReg['email']);
+            $create_datetime = date("Y-m-d H:i:s");
+
+            $sql    = "INSERT into users (username, password, email, create_datetime)
+                     VALUES ('$username', '" . md5($password) . "', '$email', '$create_datetime')";
+
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result === TRUE) {
+                return true;
+            } else {
+                print( "Error: " . $sql . "<br>" . $this->conn->error);
+                return false;
             }
         }
         return false;

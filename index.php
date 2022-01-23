@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Table V01</title>
+    <title>Login</title>
     <?php
         include('module/header.php');
     ?>
@@ -26,9 +26,9 @@
 
         } else {
             echo "<div class='form'>
-                      <h3>Incorrect Username/password.</h3><br/>
-                      <p class='link'>Click here to <a href='index.php'>Login</a> again.</p>
-                      </div>";
+                  <h3>Incorrect Username/password.</h3><br/>
+                  <p class='link'>Click here to <a href='index.php'>Login</a> again.</p>
+                  </div>";
         }
     } else {
         ?><form class="form" method="post" name="login">
