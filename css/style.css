@@ -142,3 +142,16 @@ form input[type="submit"]{
 form input[type="submit"]:hover{
     background: #21D4B6;
 }
+
+.loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('../images/loading.gif') 50% 50% no-repeat rgb(241 242 243);
+    background-size: 200px 200px;
+    background-color: rgb(242 240 240 / 40%);
+}
+

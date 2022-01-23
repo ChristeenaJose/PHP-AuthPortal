@@ -140,5 +140,8 @@ if(regForm !== null){
         if(rpField.classList.contains("error") || eField.classList.contains("error") || uField.classList.contains("error") || pField.classList.contains("error")){
             e.preventDefault(); //preventing from form submitting
         }
+        else{
+            document.getElementById('loader').style.display = '';
+        }
     }
 }

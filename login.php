@@ -7,6 +7,7 @@
     ?>
 </head>
 <body>
+
 <div class="wrapper"><?php
     include('functions.php');
     session_start();

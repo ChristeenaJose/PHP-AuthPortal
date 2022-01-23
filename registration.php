@@ -7,6 +7,7 @@
     ?>
 </head>
 <body>
+<div class="loader" style="display: none" id="loader"></div>
 <div class="wrapper"><?php
 include('functions.php');
 include('module/validations.php');
@@ -96,7 +97,7 @@ if (isset($_REQUEST['username'])) {
             <div class="error error-txt">Repeat Password can't be blank</div>
         </div>
 
-        <input type="submit" value="Register" name="submit" class="login-button" />
+        <input type="submit" value="Register" name="submit" class="login-button"/>
     </form>
     <div class="sign-txt">Already have an account? <a href="login.php">Login here</a></div><?php
 }
