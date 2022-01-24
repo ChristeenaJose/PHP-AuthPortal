@@ -188,3 +188,61 @@ if(forgotPassForm !== null){
         }
     }
 }
+
+//Validation for Reset password form
+const reSetPassForm = document.querySelector(".reSetPass_form");
+if(reSetPassForm !== null){
+        pField = reSetPassForm.querySelector(".password"),
+        pInput = pField.querySelector("input");
+        rpField = reSetPassForm.querySelector(".re-password"),
+        rpInput = rpField.querySelector("input");
+
+    reSetPassForm.onsubmit = (e)=>{
+
+        //if email and password is blank then add shake class in it else call specified function
+        (pInput.value == "") ? pField.classList.add("shake", "error") : checkPass();
+        (rpInput.value == "") ? rpField.classList.add("shake", "error") : checkRePass();
+
+        setTimeout(()=>{ //remove shake class after 500ms
+            pField.classList.remove("shake");
+            rpField.classList.remove("shake");
+        }, 500);
+
+        pInput.onkeyup = ()=>{checkPass();} //calling checkPassword function on pass input keyup
+        rpInput.onkeyup = ()=>{checkRePass();} //calling checkPassword function on pass input keyup
+
+        function checkPass(){ //checkPass function
+            if(pInput.value == ""){ //if pass is empty then add error and remove valid class
+                pField.classList.add("error");
+                pField.classList.remove("valid");
+            }
+            else{ //if pass is empty then remove error and add valid class
+                pField.classList.remove("error");
+                pField.classList.add("valid");
+            }
+        }
+
+        function checkRePass(){ //checkPass function
+            if(rpInput.value == ""){ //if pass is empty then add error and remove valid class
+                rpField.classList.add("error");
+                rpField.classList.remove("valid");
+            }
+            else if(rpInput.value != pInput.value){ //if pass is not equal to repeat password
+                rpField.classList.add("error");
+                rpField.classList.remove("valid");
+            }
+            else{ //if pass is empty then remove error and add valid class
+                rpField.classList.remove("error");
+                rpField.classList.add("valid");
+            }
+
+            let errorTxt = rpField.querySelector(".error-txt");
+            (rpInput.value != "") ? errorTxt.innerText = "Passwords do not match" : errorTxt.innerText = "Repeat Password can't be blank";
+        }
+
+        //if pField and rpField doesn't contains error class that mean user filled details properly
+        if(rpField.classList.contains("error") || pField.classList.contains("error")){
+            e.preventDefault(); //preventing from form submitting
+        }
+    }
+}

@@ -20,13 +20,16 @@
         // Check user is exist in the database
         $userExist = $classVar->checkUserLogin($username, $password);
         if ($userExist) {
+            $arrUserInfo = $classVar->getUserInfo($username, $password);
             $_SESSION['username'] = $username;
+            $_SESSION['id'] = $arrUserInfo['id'];
+            $_SESSION['token'] = $arrUserInfo['token'];
 
             // Redirect to user dashboard page
             header("Location: dashboard.php");
 
         } else {
-            if($classVar->chkUserExistByUserName($username)){
+            if($classVar->chkUserExistByUserNamePass($username, $password)){
                 print("<div class='form'>
                   <h3>Account activation pending, Please check your email!</h3><br/>
                   <p class='link'>Click here to <a href='login.php'>Login</a> again.</p>
@@ -36,6 +39,8 @@
                 print("<div class='form'>
                   <h3>Incorrect Username/password.</h3><br/>
                   <p class='link'>Click here to <a href='login.php'>Login</a> again.</p>
+                  <p class='link'>or</p>
+                  <p class='link'>Not yet member? <a href='registration.php'>Signup now</a></p>
                   </div>");
             }
         }

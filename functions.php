@@ -88,13 +88,54 @@ class dbConnection{
     }
 
     // Check user is exist in the database by UserName for Login Page.
-    function chkUserExistByUserName($userName){
-        if(!empty($userName)){
-            $sql = "SELECT * FROM users WHERE username='" . $userName . "'";
+    function chkUserExistByUserNamePass($userName, $password){
+        if(!empty($username) && !empty($password)){
+
+            //escapes special characters in a string
+            $username = $this->conn->real_escape_string($username);
+            $password = $this->conn->real_escape_string($password);
+
+            $sql = "SELECT * FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "'";
             if($this->debug){print($sql. '<br/>');}
             $result = $this->conn->query($sql);
             if ($result->num_rows > 0) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    // Check user is exist in the database by ID and Token for reset password.
+    function chkUserExistForPasswordUpdate($userId, $token){
+        if(!empty($userId) && $userId > 0 && (!empty($token) || $token == 0)){
+
+            $sql = "SELECT * FROM users WHERE id='" . $userId . "' AND token = '" . $token . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result->num_rows > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Function for reset Password.
+    function resetPassword($arrUserReg){
+        if(!empty($arrUserReg)){
+
+            //escapes special characters in a string
+            $password = $this->conn->real_escape_string($arrUserReg['password']);
+            $id = $arrUserReg['id'];
+            $token = $arrUserReg['token'];
+
+            $sql = "UPDATE users SET  password =  '" . md5($password) . "' WHERE id ='" . $id . "' AND token = '" . $token . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result === TRUE) {
+                return true;
+            }else {
+                print( "Error: " . $sql . "<br>" . $this->conn->error);
+                return false;
             }
         }
         return false;
@@ -215,7 +256,7 @@ class dbConnection{
     // Send mail for reset password.
     function sendForgotPassMail($regId, $arrUserReg, $token){
 
-        $subject = "Registration Confirmation";
+        $subject = "Password Reset Request";
 
         $to = "christyjose.m.j@gmail.com";
         $from = "christyjose.m.j@gmail.com";
@@ -237,12 +278,34 @@ class dbConnection{
             return false;
         }
     }
-
+    // Function to creat token for reset password.
     function generateToken(){
         $str= "0123456789qwertyyuiokkgffasdasdsvcvd";
         $str = str_shuffle($str);
         $str = substr($str, 0, 9);
         return $str;
+    }
+
+    // Function for collecting User details.
+    function getUserInfo($username, $password){
+        if(!empty($username) && !empty($password)){
+            $sql = "SELECT * FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "' AND active = 1";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result->num_rows > 0) {
+
+                // output data of each row
+                $newArray = array();
+                while($row = $result->fetch_assoc()) {
+                    $newArray = $row;
+                }
+                return $newArray;
+            }
+            else {
+                return false;
+            }
+        }
+        return false;
     }
 }
 $classVar = new dbConnection();

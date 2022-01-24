@@ -41,20 +41,20 @@ if (isset($_REQUEST['username'])) {
                   </div>");
         } else {
             print("<div class='form'>
-                  <h3>Website under construction, Please Try later.</h3><br/>
+                  <h3>Sorry, Website under construction, Please Try later.</h3><br/>
                   <p class='link'>Click here to <a href='registration.php'>registration</a> again.</p>
                   </div>");
         }
     }
     else if($chkUserExist){
         print( "<div class='form'>
-              <h3>Email address already exists.</h3><br/>
+              <h3>Sorry, Email address already exists.</h3><br/>
               <p class='link'>Click here to <a href='login.php'>login</a>.</p>
               </div>");
     }
     else{
         print( "<div class='form'>
-              <h3>Required fields are missing.</h3><br/>
+              <h3>Sorry, Required fields are missing.</h3><br/>
               <p class='link'>Click here to <a href='registration.php'>registration</a> again.</p>
               </div>");
     }
