@@ -95,7 +95,7 @@ class dbConnection{
     }
 
     // Check user is exist in the database by UserName for Login Page.
-    function chkUserExistByUserNamePass($userName, $password){
+    function chkUserExistByUserNamePass($username, $password){
         if(!empty($username) && !empty($password)){
 
             //escapes special characters in a string
