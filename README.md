@@ -60,7 +60,9 @@ Steps to create this system
 <li> registration.php</li></ul></li>
 
 <li>Make user receives a double-opt-in email to confirm the email address. 
-<ul><li> For account registration User receives  double opt-in Email signups, customers need to additionally verify their Email address by clicking on a verification link sent to their Email address.</li></ul></li>
+<ul><li> For account registration User receives  double opt-in Email signups, customers need to additionally verify their Email address by clicking on a verification link sent to their Email address.</li>
+  <li>Used PHP Mail function</li>
+  </ul></li>
 
 <li>Make a Dashboard Page
 <ul><li> Dashbord.php</li></ul></li>
