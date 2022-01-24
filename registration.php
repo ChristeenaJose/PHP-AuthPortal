@@ -96,7 +96,7 @@ if (isset($_REQUEST['username'])) {
             </div>
             <div class="error error-txt">Repeat Password can't be blank</div>
         </div>
-
+        <a href="forgotpassword.php">Forgot password</a>
         <input type="submit" value="Register" name="submit" class="login-button"/>
     </form>
     <div class="sign-txt">Already have an account? <a href="login.php">Login here</a></div><?php

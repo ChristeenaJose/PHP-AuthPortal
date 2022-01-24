@@ -26,10 +26,18 @@
             header("Location: dashboard.php");
 
         } else {
-            print("<div class='form'>
+            if($classVar->chkUserExistByUserName($username)){
+                print("<div class='form'>
+                  <h3>Account activation pending, Please check your email!</h3><br/>
+                  <p class='link'>Click here to <a href='login.php'>Login</a> again.</p>
+                  </div>");
+            }
+            else{
+                print("<div class='form'>
                   <h3>Incorrect Username/password.</h3><br/>
                   <p class='link'>Click here to <a href='login.php'>Login</a> again.</p>
                   </div>");
+            }
         }
     } else {
     ?>
@@ -51,6 +59,7 @@
             </div>
             <div class="error error-txt">Password can't be blank</div>
         </div>
+        <a href="forgotpassword.php">Forgot password</a>
         <input type="submit" value="Login" name="submit" class="login-button" />
     </form>
     <div class="sign-txt">Not yet member? <a href="registration.php">Signup now</a></div><?php

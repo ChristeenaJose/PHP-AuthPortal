@@ -87,6 +87,19 @@ class dbConnection{
         return false;
     }
 
+    // Check user is exist in the database by UserName for Login Page.
+    function chkUserExistByUserName($userName){
+        if(!empty($userName)){
+            $sql = "SELECT * FROM users WHERE username='" . $userName . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result->num_rows > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Insert values into the database.
     function addUserReg($arrUserReg){
 
@@ -135,7 +148,7 @@ class dbConnection{
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
-        $mailTemplate = file_get_contents("module/email_template.html");
+        $mailTemplate = file_get_contents("template/email_template.html");
         $actUrl =  str_replace('registration.php', 'activate.php',$_SERVER['HTTP_REFERER']);
         $actUrl = $actUrl . '?id=' . base64_encode($regId);
         $message = str_replace('%%$USERNAME%%', $arrUserReg['username'], $mailTemplate);
@@ -149,6 +162,87 @@ class dbConnection{
         else{
             return false;
         }
+    }
+
+    // Check user is exist in the database for reset password.
+    function chkUserForgotPass($email){
+        $userId = 0;
+        if(!empty($email)){
+            //escapes special characters in a string
+            $email = $this->conn->real_escape_string($email);
+
+            $sql = "SELECT id FROM users WHERE email='" . $email . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result->num_rows > 0) {
+                $userId = $result->fetch_assoc();
+                return $userId;
+            }
+        }
+        return $userId;
+    }
+
+    // Forgot Password.
+    function generateForgotPasswordToken($arrUserReg, $chkUserId){
+
+        if(!empty($arrUserReg) && $chkUserId > 0){
+
+            //escapes special characters in a string
+            $email = $this->conn->real_escape_string($arrUserReg['email']);
+            $token = $this->generateToken();
+
+            $sql = "UPDATE users SET  token =  '" . $token ."' WHERE email ='" . $email . "' AND id = '" . $chkUserId . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result === TRUE) {
+
+                // Send mail for reset password email.
+                if($this->sendForgotPassMail($chkUserId, $arrUserReg, $token)){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+
+            } else {
+                print( "Error: " . $sql . "<br>" . $this->conn->error);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // Send mail for reset password.
+    function sendForgotPassMail($regId, $arrUserReg, $token){
+
+        $subject = "Registration Confirmation";
+
+        $to = "christyjose.m.j@gmail.com";
+        $from = "christyjose.m.j@gmail.com";
+
+        $headers = "From: " . $from . "\r\n";
+        $headers .= "Reply-To: ". $from . "\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+
+        $mailTemplate = file_get_contents("template/email_resetpass_template.html");
+        $actUrl =  str_replace('forgotpassword.php', 'resetpassword.php',$_SERVER['HTTP_REFERER']);
+        $actUrl = $actUrl . '?id=' . base64_encode($regId) . '&token=' . $token;
+        $message = str_replace('%%$RESETPASSWORDLINK%%', $actUrl,$mailTemplate);
+
+        if(mail($to,$subject,$message,$headers)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    function generateToken(){
+        $str= "0123456789qwertyyuiokkgffasdasdsvcvd";
+        $str = str_shuffle($str);
+        $str = substr($str, 0, 9);
+        return $str;
     }
 }
 $classVar = new dbConnection();
