@@ -64,12 +64,15 @@ class dbConnection{
     }
 
     // Check user is exist in the database for Registration.
-    function chkUserExistByMail($email){
+    function chkUserExistByMail($email, $status = true){
         if(!empty($email)){
             //escapes special characters in a string
             $email = $this->conn->real_escape_string($email);
 
             $sql = "SELECT * FROM users WHERE email='" . $email . "'";
+            if($status){
+                $sql .= " AND active = 1";
+            }
             if($this->debug){print($sql. '<br/>');}
             $result = $this->conn->query($sql);
             if ($result->num_rows > 0) {

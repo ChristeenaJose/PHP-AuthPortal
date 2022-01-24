@@ -28,7 +28,7 @@ if (isset($_REQUEST['username'])) {
     $resultValidation = $classValidation->registerFormValidation($arrUserReg);
 
     //Check User Exist.
-    $chkUserExist = $classVar->chkUserExistByMail($arrUserReg['email']);
+    $chkUserExist = $classVar->chkUserExistByMail($arrUserReg['email'], $status = false);
 
     if($resultValidation && !$chkUserExist){
 
