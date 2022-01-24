@@ -13,8 +13,12 @@ include('module/auth_session.php');
 
 ?><div class="wrapper">
     <div class="form">
-        <p>Hey, <?php echo $_SESSION['username']; ?>!</p>
-        <p>You are in user dashboard page.</p>
+        <p>Hey, <?php echo $_SESSION['username'];  ?>!</p><?php
+        if(isset($_SESSION['message'])){
+            ?><p><?php print($_SESSION['message']); ?></p><?php
+            unset($_SESSION['message']);
+        }
+        ?><p>You are in user dashboard page.</p>
         <p><a href="resetpassword.php?id=<?php print(base64_encode($_SESSION['id'])); ?>&token=<?php print($_SESSION['token']); ?>">Reset Password</a></p>
         <p><a href="logout.php">Logout</a></p>
     </div>

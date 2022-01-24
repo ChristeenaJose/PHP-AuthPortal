@@ -28,7 +28,7 @@ if (isset($_REQUEST['username'])) {
     $resultValidation = $classValidation->registerFormValidation($arrUserReg);
 
     //Check User Exist.
-    $chkUserExist = $classVar->chkUserExist($arrUserReg['email']);
+    $chkUserExist = $classVar->chkUserExistByMail($arrUserReg['email']);
 
     if($resultValidation && !$chkUserExist){
 
@@ -96,7 +96,10 @@ if (isset($_REQUEST['username'])) {
             </div>
             <div class="error error-txt">Repeat Password can't be blank</div>
         </div>
-        <a href="forgotpassword.php">Forgot password</a>
+        <div>
+            <a href="forgotpassword.php">Forgot password</a>
+            <i class="icon fas fa-hand-sparkles"></i><a href="magiclink.php">Magic Link</a>
+        </div>
         <input type="submit" value="Register" name="submit" class="login-button"/>
     </form>
     <div class="sign-txt">Already have an account? <a href="login.php">Login here</a></div><?php

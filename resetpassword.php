@@ -43,7 +43,8 @@
                     <input type="hidden" name="userId" value=<?php print($id); ?> />
                     <input type="hidden" name="userToken" value=<?php print($token); ?> />
                 </form>
-                <div class="sign-txt">Already have an account? <a href="login.php">Login here</a></div><?php
+                <div class="sign-txt">Already have an account? <a href="login.php">Login here</a></div>
+                <div class="sign-txt">Not yet member? <a href="registration.php">Signup now</a></div><?php
             }
         }
         else{
@@ -55,9 +56,6 @@
     }
     elseif(isset($_REQUEST['resetPass'])){
         $arrUserReg = array();
-
-        $arrUserReg['token'] = $_REQUEST['userToken'];
-        $arrUserReg['id']    = $_REQUEST['userId'];
         $arrUserReg['password'] = $_REQUEST['password'];
         $arrUserReg['re-password'] = $_REQUEST['re-password'];
 
@@ -66,6 +64,9 @@
 
         //Server side field validation.
         $resultValidation = $classValidation->registerFormValidation($arrUserReg);
+
+        $arrUserReg['token'] = $_REQUEST['userToken'];
+        $arrUserReg['id']    = $_REQUEST['userId'];
 
         //Check User Exist.
         $chkUserExist = $classVar->chkUserExistById($arrUserReg['id']);

@@ -22,7 +22,7 @@ class dbConnection{
 		$conn -> close();
 	}
 
-    // Check user is exist in the database for Login.
+    // Function for Check user is exist in the database for Login.
     function checkUserLogin($username, $password){
         if(!empty($username) && !empty($password)){
 
@@ -30,18 +30,41 @@ class dbConnection{
             $username = $this->conn->real_escape_string($username);
             $password = $this->conn->real_escape_string($password);
 
-            $sql = "SELECT * FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "' AND active = 1";
+            $sql = "SELECT id FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "' AND active = 1";
             if($this->debug){print($sql. '<br/>');}
             $result = $this->conn->query($sql);
             if ($result->num_rows > 0) {
-                return true;
+                $userId = $result->fetch_assoc();
+                return $userId['id'];
+            }
+        }
+        return false;
+    }
+
+    // Function for collecting User details.
+    function getUserInfoById($id){
+        if(!empty($id) && $id > 0){
+            $sql = "SELECT * FROM users WHERE id='" . $id . "' AND active = 1";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result->num_rows > 0) {
+
+                // output data of each row
+                $newArray = array();
+                while($row = $result->fetch_assoc()) {
+                    $newArray = $row;
+                }
+                return $newArray;
+            }
+            else {
+                return false;
             }
         }
         return false;
     }
 
     // Check user is exist in the database for Registration.
-    function chkUserExist($email){
+    function chkUserExistByMail($email){
         if(!empty($email)){
             //escapes special characters in a string
             $email = $this->conn->real_escape_string($email);
@@ -50,24 +73,8 @@ class dbConnection{
             if($this->debug){print($sql. '<br/>');}
             $result = $this->conn->query($sql);
             if ($result->num_rows > 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Check user is exist in the database for Registration.
-    function activateUser($userId){
-        if(!empty($userId) && $userId > 0){
-
-            $sql = "UPDATE users SET  active =  '1' WHERE id ='" . $userId . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result === TRUE) {
-                return true;
-            }else {
-                print( "Error: " . $sql . "<br>" . $this->conn->error);
-                return false;
+                $userId = $result->fetch_assoc();
+                return $userId['id'];
             }
         }
         return false;
@@ -119,6 +126,37 @@ class dbConnection{
         return false;
     }
 
+    // Check user is exist in the database by ID and Token for magic link.
+    function chkUserExistForMagicLink($userId, $token){
+        if(!empty($userId) && $userId > 0 && (!empty($token) || $token == 0)){
+
+            $sql = "SELECT * FROM users WHERE id='" . $userId . "' AND magictoken = '" . $token . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result->num_rows > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Function for activate user account.
+    function activateUser($userId){
+        if(!empty($userId) && $userId > 0){
+
+            $sql = "UPDATE users SET  active =  '1' WHERE id ='" . $userId . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result === TRUE) {
+                return true;
+            }else {
+                print( "Error: " . $sql . "<br>" . $this->conn->error);
+                return false;
+            }
+        }
+        return false;
+    }
+
     // Function for reset Password.
     function resetPassword($arrUserReg){
         if(!empty($arrUserReg)){
@@ -141,7 +179,7 @@ class dbConnection{
         return false;
     }
 
-    // Insert values into the database.
+    // Insert new register user values into the database.
     function addUserReg($arrUserReg){
 
 	    if(!empty($arrUserReg)){
@@ -176,12 +214,12 @@ class dbConnection{
         return false;
     }
 
-    // Send mail for confirming email.
+    // Send mail for User registration confirm email.
     function sendConfirmationMail($regId, $arrUserReg){
 
         $subject = "Registration Confirmation";
 
-        $to = "christyjose.m.j@gmail.com";
+        $to = $arrUserReg['email'];
         $from = "christyjose.m.j@gmail.com";
 
         $headers = "From: " . $from . "\r\n";
@@ -205,25 +243,7 @@ class dbConnection{
         }
     }
 
-    // Check user is exist in the database for reset password.
-    function chkUserForgotPass($email){
-        $userId = 0;
-        if(!empty($email)){
-            //escapes special characters in a string
-            $email = $this->conn->real_escape_string($email);
-
-            $sql = "SELECT id FROM users WHERE email='" . $email . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
-                $userId = $result->fetch_assoc();
-                return $userId;
-            }
-        }
-        return $userId;
-    }
-
-    // Forgot Password.
+    // Function for generate Forgot Password Token.
     function generateForgotPasswordToken($arrUserReg, $chkUserId){
 
         if(!empty($arrUserReg) && $chkUserId > 0){
@@ -253,12 +273,50 @@ class dbConnection{
         return false;
     }
 
+    // Function for generate Magic Link Token.
+    function generateMagicLinkToken($arrUserReg, $chkUserId){
+
+        if(!empty($arrUserReg) && $chkUserId > 0){
+
+            //escapes special characters in a string
+            $email = $this->conn->real_escape_string($arrUserReg['email']);
+            $token = $this->generateToken();
+
+            $sql = "UPDATE users SET  magictoken =  '" . $token ."' WHERE email ='" . $email . "' AND id = '" . $chkUserId . "'";
+            if($this->debug){print($sql. '<br/>');}
+            $result = $this->conn->query($sql);
+            if ($result === TRUE) {
+
+                // Send mail for reset password email.
+                if($this->sendMagicLinkMail($chkUserId, $arrUserReg, $token)){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+
+            } else {
+                print( "Error: " . $sql . "<br>" . $this->conn->error);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // Function to creat token for reset password.
+    function generateToken(){
+        $str= "0123456789qwertyyuiokkgffasdasdsvcvd";
+        $str = str_shuffle($str);
+        $str = substr($str, 0, 9);
+        return $str;
+    }
+
     // Send mail for reset password.
     function sendForgotPassMail($regId, $arrUserReg, $token){
 
         $subject = "Password Reset Request";
 
-        $to = "christyjose.m.j@gmail.com";
+        $to = $arrUserReg['email'];
         $from = "christyjose.m.j@gmail.com";
 
         $headers = "From: " . $from . "\r\n";
@@ -278,34 +336,30 @@ class dbConnection{
             return false;
         }
     }
-    // Function to creat token for reset password.
-    function generateToken(){
-        $str= "0123456789qwertyyuiokkgffasdasdsvcvd";
-        $str = str_shuffle($str);
-        $str = substr($str, 0, 9);
-        return $str;
-    }
+    // Send mail for Magic Link.
+    function sendMagicLinkMail($regId, $arrUserReg, $token){
 
-    // Function for collecting User details.
-    function getUserInfo($username, $password){
-        if(!empty($username) && !empty($password)){
-            $sql = "SELECT * FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "' AND active = 1";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
+        $subject = "Magic Link Request";
 
-                // output data of each row
-                $newArray = array();
-                while($row = $result->fetch_assoc()) {
-                    $newArray = $row;
-                }
-                return $newArray;
-            }
-            else {
-                return false;
-            }
+        $to = $arrUserReg['email'];
+        $from = "christyjose.m.j@gmail.com";
+
+        $headers = "From: " . $from . "\r\n";
+        $headers .= "Reply-To: ". $from . "\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+
+        $mailTemplate = file_get_contents("template/email_magiclink_template.html");
+        $actUrl =  str_replace('magiclink.php', 'accesmagiclink.php',$_SERVER['HTTP_REFERER']);
+        $actUrl = $actUrl . '?id=' . base64_encode($regId) . '&token=' . $token;
+        $message = str_replace('%%$MAGICLINK%%', $actUrl,$mailTemplate);
+
+        if(mail($to,$subject,$message,$headers)){
+            return true;
         }
-        return false;
+        else{
+            return false;
+        }
     }
 }
 $classVar = new dbConnection();

@@ -8,27 +8,23 @@ class fieldValidations{
 
     // Function for register form validation
     function registerFormValidation($arrUserReg) {
-        $valResult = true;
         foreach($arrUserReg as $key => $value){
 
             if (empty($value)) {
-                $valResult = false;
-                return $valResult;
+                return false;
             }
             elseif ($key == 'email'){
                 if(!$this->checkEmail($value)){
-                    $valResult = false;
-                    return $valResult;
+                    return false;
                 }
             }
             elseif ($key == 're-password'){
                 if($value != $arrUserReg['password']){
-                    $valResult = false;
-                    return $valResult;
+                    return false;
                 }
             }
         }
-        return $valResult;
+        return true;
     }
 
     // Function for remove special characters

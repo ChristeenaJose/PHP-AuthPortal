@@ -17,10 +17,13 @@ if (isset($_GET["id"])) {
         $resultActivateUser = $classVar->activateUser($id);
 
         if($resultActivateUser){
-            print("<div class='form'>
-                  <h3>Success! Account activation has been done</h3><br/>
-                  <p class='link'>Click here to <a href='login.php'>Login</a></p>
-                  </div>");
+            $arrUserInfo = $classVar->getUserInfoById($id);
+            session_start();
+            $_SESSION['username'] = $arrUserInfo['username'];
+            $_SESSION['id'] = $arrUserInfo['id'];
+            $_SESSION['token'] = $arrUserInfo['token'];
+            $_SESSION['message'] = "Account activation has been done";
+            header("Location: dashboard.php");
         }
     }
     else{

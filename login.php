@@ -19,8 +19,9 @@
 
         // Check user is exist in the database
         $userExist = $classVar->checkUserLogin($username, $password);
-        if ($userExist) {
-            $arrUserInfo = $classVar->getUserInfo($username, $password);
+
+        if ($userExist && $userExist > 0) {
+            $arrUserInfo = $classVar->getUserInfoById($userExist);
             $_SESSION['username'] = $username;
             $_SESSION['id'] = $arrUserInfo['id'];
             $_SESSION['token'] = $arrUserInfo['token'];
@@ -64,7 +65,10 @@
             </div>
             <div class="error error-txt">Password can't be blank</div>
         </div>
-        <a href="forgotpassword.php">Forgot password</a>
+        <div>
+            <a href="forgotpassword.php">Forgot password</a>
+            <i class="icon fas fa-hand-sparkles"></i><a href="magiclink.php">Magic Link</a>
+        </div>
         <input type="submit" value="Login" name="submit" class="login-button" />
     </form>
     <div class="sign-txt">Not yet member? <a href="registration.php">Signup now</a></div><?php

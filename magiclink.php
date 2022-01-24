@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Forgot Password</title>
+    <title>Magic Link</title>
     <?php
     include('module/header.php');
     ?>
@@ -13,7 +13,7 @@
     include('module/validations.php');
 
     // When form submitted, insert values into the database.
-    if (isset($_REQUEST['email']) && isset($_REQUEST['forgotPass'])) {
+    if (isset($_REQUEST['email']) && isset($_REQUEST['magicLink'])) {
         $arrUserReg = array();
         $arrUserReg['email']    = $_REQUEST['email'];
 
@@ -29,36 +29,36 @@
         if($resultValidation &&  $chkUserId &&  $chkUserId > 0){
 
             // When form submitted, Generate Token and insert values into the database, and Send mail.
-            $resultForgotPass = $classVar->generateForgotPasswordToken($arrUserReg, $chkUserId);
+            $resultMagicLink = $classVar->generateMagicLinkToken($arrUserReg, $chkUserId);
 
-            if ($resultForgotPass) {
+            if ($resultMagicLink) {
                 print("<div class='form'>
-                  <h3>Success! Password reset link has been sent to your email id: ". $arrUserReg['email'] . " </h3><br/>
+                  <h3>Success! Magic link has been sent to your email id: ". $arrUserReg['email'] . " </h3><br/>
                   <p class='link'>Click here to <a href='login.php'>Login</a> again.</p>
                   </div>");
             } else {
                 print("<div class='form'>
-                  <h3>Sorry, Website under construction, Please Try later.</h3><br/>
+                  <h3>Website under construction, Please Try later.</h3><br/>
                   <p class='link'>Click here to <a href='registration.php'>registration</a> again.</p>
                   </div>");
             }
         }
         else if(!$chkUserId){
             print( "<div class='form'>
-              <h3>Sorry, Email address not exists.</h3><br/>
+              <h3>Email address not exists.</h3><br/>
               <p class='link'>Click here to <a href='registration.php'>registration</a> again.</p>
               </div>");
         }
         else{
             print( "<div class='form'>
-              <h3>Sorry, Required fields are missing.</h3><br/>
+              <h3>Required fields are missing.</h3><br/>
               <p class='link'>Click here to <a href='forgotpassword.php'>reset password</a> again.</p>
               </div>");
         }
 
     } else {
-        ?><header>Forgot Password</header>
-        <form method="post" action="" class="forgotPass_form" name="forgotPass">
+        ?><header>Magic Link</header>
+        <form method="post" action="" class="magicLink_form" name="magicLink">
             <div class="field email">
                 <div class="input-area">
                     <input type="text" name="email" placeholder="Email Adress" />
@@ -67,10 +67,10 @@
                 </div>
                 <div class="error error-txt">Email Adress can't be blank</div>
             </div>
-            <input type="hidden" name="forgotPass" value=True />
-            <input type="submit" value="Request Password" name="submit" class="login-button"/>
+            <input type="hidden" name="magicLink" value=True />
+            <input type="submit" value="Send me the magic link" name="submit" class="login-button"/>
         </form>
-        <div class="sign-txt">Already have an account? <a href="login.php">Login here</a></div><?php
+        <div class="sign-txt">Not yet member? <a href="registration.php">Signup now</a></div><?php
     }
 
     ?></div><?php

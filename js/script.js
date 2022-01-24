@@ -246,3 +246,46 @@ if(reSetPassForm !== null){
         }
     }
 }
+
+//Validation for Magic Link form
+const magicLinkForm = document.querySelector(".magicLink_form");
+if(magicLinkForm !== null){
+    eField = magicLinkForm.querySelector(".email"),
+    eInput = eField.querySelector("input"),
+
+    magicLinkForm.onsubmit = (e)=>{
+
+        //if email and password is blank then add shake class in it else call specified function
+        (eInput.value == "") ? eField.classList.add("shake", "error") : checkEmail();
+
+        setTimeout(()=>{ //remove shake class after 500ms
+            eField.classList.remove("shake");
+        }, 500);
+
+        eInput.onkeyup = ()=>{checkEmail();} //calling checkEmail function on email input keyup
+
+        function checkEmail(){ //checkEmail function
+            let pattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/; //pattern for validate email
+            if(!eInput.value.match(pattern)){ //if pattern not matched then add error and remove valid class
+                eField.classList.add("error");
+                eField.classList.remove("valid");
+                let errorTxt = eField.querySelector(".error-txt");
+
+                //if email value is not empty then show please enter valid email else show Email can't be blank
+                (eInput.value != "") ? errorTxt.innerText = "Enter a valid email address" : errorTxt.innerText = "Email can't be blank";
+            }
+            else{ //if pattern matched then remove error and add valid class
+                eField.classList.remove("error");
+                eField.classList.add("valid");
+            }
+        }
+
+        //if eField doesn't contains error class that mean user filled details properly
+        if(eField.classList.contains("error")){
+            e.preventDefault(); //preventing from form submitting
+        }
+        else{
+            document.getElementById('loader').style.display = '';
+        }
+    }
+}
