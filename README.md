@@ -18,18 +18,6 @@ Following functions are included in this application
 ## Table of contents
 
 ### Status
-Required functionality
-
-User registration (email address, username, password) - Done
-User receives a double-opt-in email to confirm the email address. - Done
-User confirms the email address, account is created, user is logged in - Done
-User login (username and password) and logout (link/button) - Done
-
-Optional functionality
-
-Password reset - Done
-Login using magic link (passwordless)- Done
-
 
 ### Technologie
 <ul>
