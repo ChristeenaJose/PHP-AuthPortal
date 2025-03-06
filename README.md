@@ -1,114 +1,44 @@
-<?php
-namespace App\Controllers;
+# **PHP-AuthPortal**
 
-use App\Models\User;
-use PDO;
+A simple PHP application that enables user registration and login with enhanced security features like double opt-in email signups, magic links, and password reset.
 
-class AuthController {
-    protected $db;
+## **Features**
 
-    public function __construct(PDO $db) {
-        $this->db = $db;
-    }
+- **Login / Signup**
+- **Logout**
+- **Double opt-in Email signups**: Users must verify their email address before completing registration.
+- **Forgot Password**: Allows users to reset their password.
+- **Reset Password**: Allows users to update their password after verification.
+- **Magic Link Login**: Login using a magic link sent via email.
+- **JavaScript Form Validation**: Ensures all forms are validated on the client side.
+- **Server-side Validation**: Additional validation on the server to enhance security.
+- **Email Validation**: Both JavaScript and server-side validation to ensure a valid email address.
+- **Responsive Design**: Optimized for all devices.
 
-    public function showSignupForm() {
-        include __DIR__ . '/../Views/signup.php';
-    }
+## **Table of Contents**
+1. [Status](#status)
+2. [Technologies](#technologies)
+3. [Setup](#setup)
 
-    public function signup() {
-        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-        $password = $_POST['password'];
+## **Status**
 
-        if (!$email || empty($password)) {
-            echo "Invalid input.";
-            return;
-        }
+This is a fully functional user registration and login system built with PHP, MySQL, and front-end technologies. It supports:
+- Double opt-in email verification.
+- Forgot password and reset password functionality.
+- Magic link for logging in.
+- Server-side and client-side form validation.
 
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        
-        $user = new User($this->db);
-        $result = $user->create($email, $passwordHash);
+## **Technologies**
+- **PHP**
+- **MySQL**
+- **HTML**
+- **CSS**
+- **JavaScript**
 
-        if ($result) {
-            echo "Signup successful!";
-        } else {
-            echo "Signup failed.";
-        }
-    }
+## **Setup**
 
-    public function showLoginForm() {
-        include __DIR__ . '/../Views/login.php';
-    }
-
-    public function login() {
-        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-        $password = $_POST['password'];
-
-        if (!$email || empty($password)) {
-            echo "Invalid input.";
-            return;
-        }
-
-        $user = new User($this->db);
-        $userData = $user->getByEmail($email);
-
-        if ($userData && password_verify($password, $userData['password'])) {
-            $_SESSION['user_id'] = $userData['id'];
-            echo "Login successful!";
-        } else {
-            echo "Invalid credentials.";
-        }
-    }
-
-    public function logout() {
-        session_destroy();
-        echo "Logged out.";
-    }
-
-    public function showForgotPasswordForm() {
-        include __DIR__ . '/../Views/forgot_password.php';
-    }
-
-    public function forgotPassword() {
-        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-
-        if (!$email) {
-            echo "Invalid email.";
-            return;
-        }
-
-        $user = new User($this->db);
-        $userData = $user->getByEmail($email);
-
-        if (!$userData) {
-            echo "No user found with that email.";
-            return;
-        }
-
-        $resetToken = bin2hex(random_bytes(16));
-        $user->setResetToken($email, $resetToken);
-
-        echo "Reset password link sent!";
-    }
-
-    public function showResetPasswordForm() {
-        include __DIR__ . '/../Views/reset_password.php';
-    }
-
-    public function resetPassword() {
-        $token = $_GET['token'] ?? '';
-        $newPassword = $_POST['password'] ?? '';
-
-        if (!$token || empty($newPassword)) {
-            echo "Invalid request.";
-            return;
-        }
-
-        $user = new User($this->db);
-        if ($user->resetPassword($token, password_hash($newPassword, PASSWORD_DEFAULT))) {
-            echo "Password reset successfully.";
-        } else {
-            echo "Reset failed.";
-        }
-    }
-}
+### **1️⃣ Create the Database and Tables**
+   Run the following SQL commands to create the necessary database:
+   ```sql
+   CREATE DATABASE 'LoginSystem';
+   USE 'LoginSystem';
