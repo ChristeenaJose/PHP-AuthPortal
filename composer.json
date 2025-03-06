@@ -1,0 +1,17 @@
+{
+    "name": "christeenajose/php-auth-portal",
+    "description": "A simple PHP application that enables user registration and login with enhanced security features like double opt-in email signups, magic links, and password reset.",
+    "autoload": {
+        "psr-4": {
+            "Christeenajose\\PhpAuthPortal\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Christeena Jose"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
+}
