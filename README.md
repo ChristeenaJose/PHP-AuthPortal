@@ -19,8 +19,9 @@ A simple PHP application that enables user registration and login with enhanced 
 1. [Status](#status)
 2. [Technologies](#technologies)
 3. [Setup](#setup)
-4. [Contributing](#-contributing)
-5. [License](#license)
+4. [Using Composer](#using-composer)
+5. [Contributing](#-contributing)
+6. [License](#license)
 
 ## **Status**
 
@@ -78,6 +79,34 @@ Users can log in using a magic link sent to their email. This eliminates the nee
 ### **🔟 CSS Styles**
 The application's styles are contained in the styles.css file.
 
+## **Using Composer**
+This project uses Composer to manage dependencies. Composer makes it easy to install libraries like PHPMailer and keep your project dependencies organized.
+
+To handle the issue of the mail() function not working on macOS, you can use PHPMailer to send emails using an external SMTP server like Gmail SMTP instead of using PHP's built-in mail() function. 
+
+1️⃣ Install Composer
+If you don't have Composer installed on your system, you can download and install it from the official website: https://getcomposer.org/download/.
+
+2️⃣ Install Project Dependencies
+To install all required dependencies (like PHPMailer), run the following command in your project directory:
+
+```bash
+composer install
+This will install all the dependencies listed in the composer.json file, including PHPMailer.
+```
+3️⃣ Autoloading
+Composer automatically generates an autoloader, which you can use to load PHP classes. To use the autoloader in your project, include the following line at the beginning of your PHP files:
+
+```php
+require 'vendor/autoload.php';
+```
+4️⃣ Add More Dependencies
+You can easily add more PHP libraries or packages to your project using Composer. For example, to add PHPMailer or any other package, run:
+
+```bash
+composer require phpmailer/phpmailer
+Composer will handle the installation and update your composer.json file with the new dependency.
+```
 ## 🤲 Contributing
 Feel free to fork this repository and improve it. Contributions are always welcome! 🎉
 
