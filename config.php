@@ -4,6 +4,6 @@
         'host' => 'localhost',
         'name' => 'LoginSystem',
         'user' => 'root',
-        'pass' => ''
+        'pass' => 'root'
     ];
 ?>

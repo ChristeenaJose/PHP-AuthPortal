@@ -32,7 +32,8 @@ Following functions are included in this application
 Steps to create this system
 <ul>
 <li>Create a Database and Database Table.
-<ul><li> Details given in db/log.txt</li></ul>
+<ul><li> CREATE DATABASE 'LoginSystem'</li></ul>
+<ul><li> USE file 'database.sql' to set up the necessary tables</li></ul>
   </li>
 <li>Connect to the Database</li>
 <ul><li>  Database credentials are updated in config.php</li></ul>
