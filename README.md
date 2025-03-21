@@ -43,8 +43,8 @@ This is a fully functional user registration and login system built with PHP, My
 ### **1️⃣ Create the Database and Tables**
    Run the following SQL commands to create the necessary database:
    ```sql
-   CREATE DATABASE 'LoginSystem';
-   USE 'LoginSystem';
+   CREATE DATABASE LoginSystem;
+   USE LoginSystem;
    ```
 Then, use the database.sql file to set up the required tables.
 ### **2️⃣ Configure the Database**
