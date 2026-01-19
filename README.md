@@ -107,8 +107,4 @@ You can easily add more PHP libraries or packages to your project using Composer
 composer require phpmailer/phpmailer
 Composer will handle the installation and update your composer.json file with the new dependency.
 ```
-## 🤲 Contributing
-Feel free to fork this repository and improve it. Contributions are always welcome! 🎉
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
