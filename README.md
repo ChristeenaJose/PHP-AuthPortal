@@ -32,7 +32,7 @@ This is a fully functional user registration and login system built with PHP, My
 - Server-side and client-side form validation.
 
 ## **Technologies**
-- **PHP**
+- **PHP 8.2+**
 - **MySQL**
 - **HTML**
 - **CSS**
