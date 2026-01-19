@@ -9,3 +9,7 @@ CREATE TABLE IF NOT EXISTS `users` (
  `create_datetime` datetime NOT NULL,
  PRIMARY KEY (`id`)
 );
+
+ALTER TABLE users MODIFY password VARCHAR(255);
+ALTER TABLE users MODIFY token VARCHAR(255);
+ALTER TABLE users MODIFY magictoken VARCHAR(255);
