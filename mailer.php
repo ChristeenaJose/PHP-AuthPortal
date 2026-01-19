@@ -17,8 +17,8 @@ class Mailer {
         $this->mail->isSMTP();
         $this->mail->Host = 'smtp.gmail.com'; // Gmail SMTP server
         $this->mail->SMTPAuth = true;
-        $this->mail->Username = 'xxxxxxxxxxx'; // Your Gmail username
-        $this->mail->Password = 'xxxxxxxx'; // Your Gmail password (use App Password if 2FA enabled)
+        $this->mail->Username = 'christyjose.m.j@gmail.com'; // Your Gmail username
+        $this->mail->Password = 'xfrq lhpq zngn gdlo'; // Your Gmail password (use App Password if 2FA enabled)
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mail->Port = 587;
     }
@@ -26,7 +26,7 @@ class Mailer {
     public function sendMail($to, $subject, $body) {
         try {
             // Sender's email address
-            $this->mail->setFrom('xxxxxxxxxxx', 'Your Name');
+            $this->mail->setFrom('christyjose.m.j@gmail.com', 'Your Name');
             
             // Add recipient's email address
             $this->mail->addAddress($to);
