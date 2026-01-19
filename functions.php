@@ -1,368 +1,254 @@
 <?php
+declare(strict_types=1);
 
-require 'mailer.php';  // Include the Mailer class
+require 'mailer.php';
 
-//Class for db connection
-class dbConnection{
-	
-	function __construct(){
-		$this->conn = $this->OpenCon();
-		$this->debug = false;
-		if($this->debug) print("Connected Successfully");
-	} 
-	function OpenCon(){
-		$database = include('config.php');
-		
-		$dbhost = $database['host'];
-		$dbuser = $database['user'];
-		$dbpass = $database['pass'];
-		$db = $database['name'];
-		$this->conn = new mysqli($dbhost, $dbuser, $dbpass,$db) or die("Connect failed: %s\n". $this->conn->error);
-		return $this->conn;
-	}
-	function CloseCon($conn){
-		$conn -> close();
-	}
+class dbConnection
+{
+    public mysqli $conn;
+    public bool $debug = false;
 
-    // Function for Check user is exist in the database for Login.
-    function checkUserLogin($username, $password){
-        if(!empty($username) && !empty($password)){
+    public function __construct()
+    {
+        $this->conn = $this->OpenCon();
+    }
 
-            //escapes special characters in a string
-            $username = $this->conn->real_escape_string($username);
-            $password = $this->conn->real_escape_string($password);
+    public function OpenCon(): mysqli
+    {
+        $database = include('config.php');
 
-            $sql = "SELECT id FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "' AND active = 1";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
-                $userId = $result->fetch_assoc();
-                return $userId['id'];
-            }
+        $dbhost = $database['host'];
+        $dbuser = $database['user'];
+        $dbpass = $database['pass'];
+        $db     = $database['name'];
+
+        $conn = new mysqli($dbhost, $dbuser, $dbpass, $db);
+
+        if ($conn->connect_error) {
+            die("DB connection failed");
         }
+
+        return $conn;
+    }
+
+    public function CloseCon(mysqli $conn): void
+    {
+        $conn->close();
+    }
+
+    /* ================= LOGIN ================= */
+
+    public function checkUserLogin(string $username, string $password): int|false
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT id, password FROM users WHERE username = ? AND active = 1 LIMIT 1"
+        );
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        if ($user && password_verify($password, $user['password'])) {
+            return (int)$user['id'];
+        }
+
         return false;
     }
 
-    // Function for collecting User details.
-    function getUserInfoById($id){
-        if(!empty($id) && $id > 0){
-            $sql = "SELECT * FROM users WHERE id='" . $id . "' AND active = 1";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
+    public function getUserInfoById(int $id): array|false
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM users WHERE id = ? AND active = 1"
+        );
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
 
-                // output data of each row
-                $newArray = array();
-                while($row = $result->fetch_assoc()) {
-                    $newArray = $row;
-                }
-                return $newArray;
-            }
-            else {
-                return false;
-            }
-        }
-        return false;
+        $res = $stmt->get_result();
+        return $res->fetch_assoc() ?: false;
     }
 
-    // Check user is exist in the database for Registration.
-    function chkUserExistByMail($email, $status = true){
-        if(!empty($email)){
-            //escapes special characters in a string
-            $email = $this->conn->real_escape_string($email);
+    public function chkUserExistByMail(string $email, bool $status = true): int|false
+    {
+        $sql = "SELECT id FROM users WHERE email = ?";
+        if ($status) $sql .= " AND active = 1";
 
-            $sql = "SELECT * FROM users WHERE email='" . $email . "'";
-            if($status){
-                $sql .= " AND active = 1";
-            }
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
-                $userId = $result->fetch_assoc();
-                return $userId['id'];
-            }
-        }
-        return false;
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+
+        $res = $stmt->get_result()->fetch_assoc();
+        return $res ? (int)$res['id'] : false;
     }
 
-    // Check user is exist in the database by ID.
-    function chkUserExistById($userId){
-        if(!empty($userId) && $userId > 0){
+    public function chkUserExistById(int $userId): bool
+    {
+        $stmt = $this->conn->prepare("SELECT id FROM users WHERE id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
 
-            $sql = "SELECT * FROM users WHERE id='" . $userId . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
-                return true;
-            }
-        }
-        return false;
+        return (bool)$stmt->get_result()->fetch_assoc();
     }
 
-    // Check user is exist in the database by UserName for Login Page.
-    function chkUserExistByUserNamePass($username, $password){
-        if(!empty($username) && !empty($password)){
-
-            //escapes special characters in a string
-            $username = $this->conn->real_escape_string($username);
-            $password = $this->conn->real_escape_string($password);
-
-            $sql = "SELECT * FROM users WHERE username='" . $username . "'AND password='" . md5($password) . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
-                return true;
-            }
-        }
-        return false;
+    public function chkUserExistByUserNamePass(string $username, string $password): bool
+    {
+        return $this->checkUserLogin($username, $password) !== false;
     }
 
-    // Check user is exist in the database by ID and Token for reset password.
-    function chkUserExistForPasswordUpdate($userId, $token){
-        if(!empty($userId) && $userId > 0 && (!empty($token) || $token == 0)){
+    public function chkUserExistForPasswordUpdate(int $userId, string $token): bool
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT id FROM users WHERE id = ? AND token = ?"
+        );
+        $stmt->bind_param("is", $userId, $token);
+        $stmt->execute();
 
-            $sql = "SELECT * FROM users WHERE id='" . $userId . "' AND token = '" . $token . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
-                return true;
-            }
-        }
-        return false;
+        return (bool)$stmt->get_result()->fetch_assoc();
     }
 
-    // Check user is exist in the database by ID and Token for magic link.
-    function chkUserExistForMagicLink($userId, $token){
-        if(!empty($userId) && $userId > 0 && (!empty($token) || $token == 0)){
+    public function chkUserExistForMagicLink(int $userId, string $token): bool
+    {
+        $stmt = $this->conn->prepare(
+            "SELECT id FROM users WHERE id = ? AND magictoken = ?"
+        );
+        $stmt->bind_param("is", $userId, $token);
+        $stmt->execute();
 
-            $sql = "SELECT * FROM users WHERE id='" . $userId . "' AND magictoken = '" . $token . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result->num_rows > 0) {
-                return true;
-            }
-        }
-        return false;
+        return (bool)$stmt->get_result()->fetch_assoc();
     }
 
-    // Function for activate user account.
-    function activateUser($userId){
-        if(!empty($userId) && $userId > 0){
-
-            $sql = "UPDATE users SET  active =  '1' WHERE id ='" . $userId . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result === TRUE) {
-                return true;
-            }else {
-                print( "Error: " . $sql . "<br>" . $this->conn->error);
-                return false;
-            }
-        }
-        return false;
+    public function activateUser(int $userId): bool
+    {
+        $stmt = $this->conn->prepare(
+            "UPDATE users SET active = 1 WHERE id = ?"
+        );
+        $stmt->bind_param("i", $userId);
+        return $stmt->execute();
     }
 
-    // Function for reset Password.
-    function resetPassword($arrUserReg){
-        if(!empty($arrUserReg)){
+    /* ================= PASSWORD ================= */
 
-            //escapes special characters in a string
-            $password = $this->conn->real_escape_string($arrUserReg['password']);
-            $id = $arrUserReg['id'];
-            $token = $arrUserReg['token'];
+    public function resetPassword(array $arrUserReg): bool
+    {
+        $hash = password_hash($arrUserReg['password'], PASSWORD_DEFAULT);
 
-            $sql = "UPDATE users SET  password =  '" . md5($password) . "' WHERE id ='" . $id . "' AND token = '" . $token . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result === TRUE) {
-                return true;
-            }else {
-                print( "Error: " . $sql . "<br>" . $this->conn->error);
-                return false;
-            }
-        }
-        return false;
+        $stmt = $this->conn->prepare(
+            "UPDATE users SET password = ?, token = NULL WHERE id = ? AND token = ?"
+        );
+        $stmt->bind_param("sis", $hash, $arrUserReg['id'], $arrUserReg['token']);
+
+        return $stmt->execute();
     }
 
-    // Insert new register user values into the database.
-    function addUserReg($arrUserReg){
+    /* ================= REGISTRATION ================= */
 
-	    if(!empty($arrUserReg)){
+    public function addUserReg(array $arrUserReg): bool
+    {
+        $hash = password_hash($arrUserReg['password'], PASSWORD_DEFAULT);
 
-            //escapes special characters in a string
-            $username = $this->conn->real_escape_string($arrUserReg['username']);
-            $password = $this->conn->real_escape_string($arrUserReg['password']);
-            $email = $this->conn->real_escape_string($arrUserReg['email']);
-            $create_datetime = date("Y-m-d H:i:s");
+        $stmt = $this->conn->prepare(
+            "INSERT INTO users (username, password, email, create_datetime)
+             VALUES (?, ?, ?, NOW())"
+        );
 
-            $sql    = "INSERT into users (username, password, email, create_datetime)
-                     VALUES ('$username', '" . md5($password) . "', '$email', '$create_datetime')";
+        $stmt->bind_param(
+            "sss",
+            $arrUserReg['username'],
+            $hash,
+            $arrUserReg['email']
+        );
 
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result === TRUE) {
-
-                // Send mail for confirming email.
-                $regId = $this->conn->insert_id;
-                if($this->sendConfirmationMail($regId, $arrUserReg)){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-
-            } else {
-                print( "Error: " . $sql . "<br>" . $this->conn->error);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    // Send mail for User registration confirm email.
-    function sendConfirmationMail($regId, $arrUserReg){
-
-        $subject = "Registration Confirmation";
-
-        $to = $arrUserReg['email'];
-
-        $mailTemplate = file_get_contents("template/email_template.html");
-        $actUrl =  str_replace('registration.php', 'activate.php',$_SERVER['HTTP_REFERER']);
-        $actUrl = $actUrl . '?id=' . base64_encode($regId);
-        $message = str_replace('%%$USERNAME%%', $arrUserReg['username'], $mailTemplate);
-        $message = str_replace('%%$CONFIRMATIONLINK%%', $actUrl,$message);
-        $message = str_replace('%%$CONFIRMATIONLINK2%%', $actUrl,$message);
-
-        $mailer = new Mailer();    
-        if($mailer->sendMail($to,$subject,$message)){
-            return true;
-        }
-        else{
+        if (!$stmt->execute()) {
             return false;
         }
+
+        $regId = $this->conn->insert_id;
+        return $this->sendConfirmationMail($regId, $arrUserReg);
     }
 
-    // Function for generate Forgot Password Token.
-    function generateForgotPasswordToken($arrUserReg, $chkUserId){
+    /* ================= TOKENS ================= */
 
-        if(!empty($arrUserReg) && $chkUserId > 0){
+    public function generateForgotPasswordToken(array $arrUserReg, int $userId): bool
+    {
+        $token = $this->generateToken();
 
-            //escapes special characters in a string
-            $email = $this->conn->real_escape_string($arrUserReg['email']);
-            $token = $this->generateToken();
+        $stmt = $this->conn->prepare(
+            "UPDATE users SET token = ? WHERE id = ?"
+        );
+        $stmt->bind_param("si", $token, $userId);
 
-            $sql = "UPDATE users SET  token =  '" . $token ."' WHERE email ='" . $email . "' AND id = '" . $chkUserId . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result === TRUE) {
-
-                // Send mail for reset password email.
-                if($this->sendForgotPassMail($chkUserId, $arrUserReg, $token)){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-
-            } else {
-                print( "Error: " . $sql . "<br>" . $this->conn->error);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    // Function for generate Magic Link Token.
-    function generateMagicLinkToken($arrUserReg, $chkUserId){
-
-        if(!empty($arrUserReg) && $chkUserId > 0){
-
-            //escapes special characters in a string
-            $email = $this->conn->real_escape_string($arrUserReg['email']);
-            $token = $this->generateToken();
-
-            $sql = "UPDATE users SET  magictoken =  '" . $token ."' WHERE email ='" . $email . "' AND id = '" . $chkUserId . "'";
-            if($this->debug){print($sql. '<br/>');}
-            $result = $this->conn->query($sql);
-            if ($result === TRUE) {
-
-                // Send mail for reset password email.
-                if($this->sendMagicLinkMail($chkUserId, $arrUserReg, $token)){
-                    return true;
-                }
-                else{
-                    return false;
-                }
-
-            } else {
-                print( "Error: " . $sql . "<br>" . $this->conn->error);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    // Function to creat token for reset password.
-    function generateToken(){
-        $str= "0123456789qwertyyuiokkgffasdasdsvcvd";
-        $str = str_shuffle($str);
-        $str = substr($str, 0, 9);
-        return $str;
-    }
-
-    // Send mail for reset password.
-    function sendForgotPassMail($regId, $arrUserReg, $token){
-
-        $subject = "Password Reset Request";
-
-        $to = $arrUserReg['email'];
-        $from = "christyjose.m.j@gmail.com";
-
-        $headers = "From: " . $from . "\r\n";
-        $headers .= "Reply-To: ". $from . "\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-
-        $mailTemplate = file_get_contents("template/email_resetpass_template.html");
-        $actUrl =  str_replace('forgotpassword.php', 'resetpassword.php',$_SERVER['HTTP_REFERER']);
-        $actUrl = $actUrl . '?id=' . base64_encode($regId) . '&token=' . $token;
-        $message = str_replace('%%$RESETPASSWORDLINK%%', $actUrl,$mailTemplate);
-
-        $mailer = new Mailer();    
-        if($mailer->sendMail($to,$subject,$message)){
-            return true;
-        }
-        else{
+        if (!$stmt->execute()) {
             return false;
         }
+
+        return $this->sendForgotPassMail($userId, $arrUserReg, $token);
     }
-    // Send mail for Magic Link.
-    function sendMagicLinkMail($regId, $arrUserReg, $token){
 
-        $subject = "Magic Link Request";
+    public function generateMagicLinkToken(array $arrUserReg, int $userId): bool
+    {
+        $token = $this->generateToken();
 
-        $to = $arrUserReg['email'];
-        $from = "christyjose.m.j@gmail.com";
+        $stmt = $this->conn->prepare(
+            "UPDATE users SET magictoken = ? WHERE id = ?"
+        );
+        $stmt->bind_param("si", $token, $userId);
 
-        $headers = "From: " . $from . "\r\n";
-        $headers .= "Reply-To: ". $from . "\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-
-        $mailTemplate = file_get_contents("template/email_magiclink_template.html");
-        $actUrl =  str_replace('magiclink.php', 'accesmagiclink.php',$_SERVER['HTTP_REFERER']);
-        $actUrl = $actUrl . '?id=' . base64_encode($regId) . '&token=' . $token;
-        $message = str_replace('%%$MAGICLINK%%', $actUrl,$mailTemplate);
-
-        $mailer = new Mailer();    
-        if($mailer->sendMail($to,$subject,$message)){
-            return true;
-        }
-        else{
+        if (!$stmt->execute()) {
             return false;
         }
+
+        return $this->sendMagicLinkMail($userId, $arrUserReg, $token);
+    }
+
+    public function generateToken(): string
+    {
+        return bin2hex(random_bytes(32));
+    }
+
+    /* ================= MAIL ================= */
+
+    public function sendConfirmationMail(int $regId, array $arrUserReg): bool
+    {
+        $template = file_get_contents("template/email_template.html");
+
+        $base = str_replace('registration.php', 'activate.php', $_SERVER['HTTP_REFERER']);
+        $link = $base . '?id=' . base64_encode((string)$regId);
+
+        $message = str_replace(
+            ['%%$USERNAME%%', '%%$CONFIRMATIONLINK%%', '%%$CONFIRMATIONLINK2%%'],
+            [$arrUserReg['username'], $link, $link],
+            $template
+        );
+
+        $mailer = new Mailer();
+        return $mailer->sendMail($arrUserReg['email'], "Registration Confirmation", $message);
+    }
+
+    public function sendForgotPassMail(int $regId, array $arrUserReg, string $token): bool
+    {
+        $template = file_get_contents("template/email_resetpass_template.html");
+
+        $base = str_replace('forgotpassword.php', 'resetpassword.php', $_SERVER['HTTP_REFERER']);
+        $link = $base . '?id=' . base64_encode((string)$regId) . '&token=' . $token;
+
+        $message = str_replace('%%$RESETPASSWORDLINK%%', $link, $template);
+
+        $mailer = new Mailer();
+        return $mailer->sendMail($arrUserReg['email'], "Password Reset Request", $message);
+    }
+
+    public function sendMagicLinkMail(int $regId, array $arrUserReg, string $token): bool
+    {
+        $template = file_get_contents("template/email_magiclink_template.html");
+
+        $base = str_replace('magiclink.php', 'accesmagiclink.php', $_SERVER['HTTP_REFERER']);
+        $link = $base . '?id=' . base64_encode((string)$regId) . '&token=' . $token;
+
+        $message = str_replace('%%$MAGICLINK%%', $link, $template);
+
+        $mailer = new Mailer();
+        return $mailer->sendMail($arrUserReg['email'], "Magic Link Login", $message);
     }
 }
-$classVar = new dbConnection();
 
-?>
+$classVar = new dbConnection();
